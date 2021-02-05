@@ -2,25 +2,136 @@
 NPM Cheat Sheet with the most needed stuff..
 
 
-<br><br>
 
 # Login
 ```bash
 npm login
 ```
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br><br>
+__________________________________________
+__________________________________________
 <br><br>
 
-# Install from package.json
+# Install 
+
+## Install from package.json
 ```bash
 npm i
 ```
 
-# Install from package-lock.json
+<br><br>
+
+## Install from package-lock.json
 ```bash
 npm ci
 ```
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br><br>
+__________________________________________
+__________________________________________
+<br><br>
+
+# ls
+- find folder path of node package inside of your node_modules folder
+```bash
+npm ls packagename
+
+// you can search aswell global
+npm ls -g packagename
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br><br>
+__________________________________________
+__________________________________________
 <br><br>
 
 # Unpublish (Delete package from the registry)
