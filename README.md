@@ -33,6 +33,20 @@ __________________________________________
 
 # Install 
 
+## Install package
+```bash
+npm i request
+```
+
+<br><br>
+
+## Install package to devDependencies
+```bash
+npm i --save-dev sinon 
+```
+
+<br><br>
+
 ## Install from package.json
 ```bash
 npm i
