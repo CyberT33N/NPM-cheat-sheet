@@ -80,6 +80,30 @@ npm ci
 
 
 
+<br><br>
+__________________________________________
+__________________________________________
+<br><br>
+
+# .npmrc
+
+<br><br>
+
+
+## Use specific Node.js & NPM Version
+```bash
+// package.json
+"engines": {
+  "node": ">=10.0.0",
+  "npm": ">=6.0.0"
+}
+
+// .npmrc
+engine-strict=true
+```
+
+
+
 
 
 
