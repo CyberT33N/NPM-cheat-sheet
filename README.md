@@ -133,15 +133,15 @@ __________________________________________
 # run (https://docs.npmjs.com/cli/v7/commands/npm-run-script)
 - This runs an arbitrary command from a package's "scripts" object. If no "command" is provided, it will list the available scripts.
 
-<br><br>
+<br>
 
 run[-script] is used by the test, start, restart, and stop commands, but can be called directly, as well. When the scripts in the package are printed out, they're separated into lifecycle (test, start, restart) and directly-run scripts.
 
-<br><br>
+<br>
 
 Any positional arguments are passed to the specified script. Use -- to pass --prefixed flags and options which would otherwise be parsed by npm.
 
-<br><br>
+<br>
 
 For example:
 ```bash
