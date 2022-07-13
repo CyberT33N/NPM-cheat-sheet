@@ -149,7 +149,17 @@ npm i
 npm ci
 ```
 
+<br><br>
 
+## Use local dependencies via path
+```javascript
+{
+  "dependencies": {
+    "anyModuleName": "file:../anyModuleName"
+  }
+}
+
+```
 
 
 <br><br>
