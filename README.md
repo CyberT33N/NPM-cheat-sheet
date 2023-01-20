@@ -48,6 +48,12 @@ npm i --save-dev sinon
 
 
 
+<br><br>
+
+## Install package with security audit check
+```bash
+npm i --no-audit sinon 
+```
 
 
 
