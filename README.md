@@ -300,8 +300,20 @@ npm run test-watch
 ```
 
 
+<br><br>
 
+## exports
+- Define ESM or CJS
+- https://nodejs.org/api/packages.html#exports
+- https://nodejs.org/api/packages.html#conditional-exports
 
+```javascript
+ "type": "module",
+  "exports": {
+    "import": "./dist/express-restify-mongoose.js",
+    "require": "./dist/cjs/express-restify-mongoose.js"
+  }
+```
 
 
 
