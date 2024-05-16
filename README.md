@@ -680,7 +680,96 @@ __________________________________________
 __________________________________________
 <br><br>
 
-# Unpublish (Delete package from the registry)
+# Publish
+
+## How to automate releases and publish packages to NPM using GitHub Actions
+- https://nanthakumaran.medium.com/how-to-automate-releases-and-publish-packages-to-npm-using-github-actions-910d5128c0fa
+
+1. We need 2 tokens to accomplish this task of automating releases and publishing packages.
+- PA_TOKEN - Personal Access Token from GitHub
+- NPM_TOKEN - NPM Token for automation
+
+2. PA_TOKEN 
+Head over to https://github.com/settings/tokens/new to generate a new Personal Access Token
+- Select scopes:
+  - workflow 
+  - write:packages
+
+
+3. NPM_TOKEN
+- Go to Settings > Access Tokens > Generate new token > Classic token
+  - Make sure you have chosen Automation
+
+4. Add npm token to github
+Open Settings of the repository. Under Security > Secrets > Action, click New Repository Secret and add your tokens
+  - Name field ist for e,g, PA_TOKEN and then value the token
+    - Add another one for NPM_TOKEN
+
+
+
+5. Create in your project:
+- .github/workflows/release.yml
+```yml
+name: Releases
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Conventional Changelog Action
+        id: changelog
+        uses: TriPSs/conventional-changelog-action@v3.7.1
+        with:
+          github-token: ${{ secrets.PA_TOKEN }}
+          version-file: './package.json,./package-lock.json'
+      - name: create release
+        uses: actions/create-release@v1
+        if: ${{ steps.changelog.outputs.skipped == 'false' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.PA_TOKEN }}
+        with:
+          tag_name: ${{ steps.changelog.outputs.tag }}
+          release_name: ${{ steps.changelog.outputs.tag }}
+          body: ${{ steps.changelog.outputs.clean_changelog }}
+```
+
+- .github/workflows/publish.yml
+```yml
+name: Publish to NPM
+on:
+  release:
+    types: [created]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Install dependencies and build 🔧
+        run: npm ci
+      - name: Publish package on NPM 📦
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+```
+
+
+<br><br>
+<br><br>
+
+
+
+## Unpublish (Delete package from the registry)
 - https://docs.npmjs.com/unpublishing-packages-from-the-registry/
 ```bash
 npm unpublish --force your package
