@@ -1,4 +1,4 @@
-# NPM-cheat-sheet
+# NPM Cheat Sheet
 NPM Cheat Sheet with the most needed stuff..
 
 
@@ -768,6 +768,81 @@ jobs:
 <br><br>
 
 
+## TypeScript NPM Package Publishing: A Beginner’s Guide
+- https://pauloe-me.medium.com/typescript-npm-package-publishing-a-beginners-guide-40b95908e69c
+
+1. npm init und projekt erstellen
+- If exists remove "type": "module" from package.json 
+
+2. Install dependencies
+```shell
+npm install --save-dev typescript ts-node
+npm i tsup glob
+```
+
+3. Setup your tsconfig.json , run the following command npx tsc --init , it will create a tsconfig file in the base of your project. Update the outDir field to "dist"
+
+4. Create .gitignore:
+```
+/node_modules
+
+# Ignore test-related files
+/coverage.data
+/coverage/
+
+# Build files
+/dist
+```
+
+5. Create tsup.config.ts:
+```javascript
+import { defineConfig } from "tsup"
+import * as glob from 'glob'
+
+const entries = glob.sync('./src/*.ts')
+console.log(entries)
+
+export default defineConfig({
+  entry: entries,
+  format: ["cjs", "esm"], // Build for commonJS and ESmodules
+  dts: true, // Generate declaration file (.d.ts)
+  splitting: false,
+  sourcemap: true,
+  clean: true
+})
+```
+
+6. Create npm run scripts
+```javascript
+"scripts": {
+    "build": "tsup",
+    "test": "echo \"Error: no test specified\" && exit 1"
+},
+```
+
+7. Add to package.json
+```javascript
+"main": "./dist/index.js",
+"module": "./dist/index.mjs",
+"types": "./dist/index.d.ts",
+"files": [
+    "dist"
+ ],
+```
+
+8. Create an account on NPM if you don’t already have one.
+- https://www.npmjs.com/signup
+
+9. Run `npm login`
+
+10. Run `npm publish`
+
+
+
+
+
+<br><br>
+<br><br>
 
 ## Unpublish (Delete package from the registry)
 - https://docs.npmjs.com/unpublishing-packages-from-the-registry/
