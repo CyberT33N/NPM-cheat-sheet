@@ -763,10 +763,15 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 ```
 
+- **When you will push a commit then your version in your package.json will automatically get increased. So you have to do git pull before doing another commit**
+
+
+
 
 <br><br>
 <br><br>
-
+<br><br>
+<br><br>
 
 ## TypeScript NPM Package Publishing: A Beginner’s Guide
 - https://pauloe-me.medium.com/typescript-npm-package-publishing-a-beginners-guide-40b95908e69c
