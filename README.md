@@ -773,8 +773,8 @@ Then once the release was created the publish.yml will publish the package with 
   
 ```
 git add .
-# https://github.com/T-vK/git-tools
-mkcommit
+# https://www.conventionalcommits.org/en/v1.0.0/
+git commit -m "feat: Added payment feature"
 git push
 
 # Now there should be conflicts because the github workflows will automatically create a new version in our package.json
