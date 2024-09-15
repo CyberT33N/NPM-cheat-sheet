@@ -763,7 +763,11 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 ```
 
-- **When you will push a commit then your version in your package.json will automatically get increased. So you have to do git pull before doing another commit**
+The first entry point will be release.yml, where while committing the code it will generate a new release based on the conventional commits (will see that in minutes).
+
+After each proper commit, the release.yml will change the CHANGELOG.md, package.json & package-lock.json
+
+Then once the release was created the publish.yml will publish the package with the generated release to NPM Registry
 
 
 
