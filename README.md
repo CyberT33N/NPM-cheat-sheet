@@ -769,6 +769,24 @@ After each proper commit, the release.yml will change the CHANGELOG.md, package.
 
 Then once the release was created the publish.yml will publish the package with the generated release to NPM Registry
 
+- **This means when ever you create a new change you have to run:**
+  
+```
+git add .
+# https://github.com/T-vK/git-tools
+mkcommit
+git push
+
+# Now there should be conflicts because the github workflows will automatically create a new version in our package.json
+# Activate git pull config with rebase
+git pull
+
+# If there are conflicts then solve them
+# git add .
+# git rebase --continue
+
+git push -f
+```
 
 
 
