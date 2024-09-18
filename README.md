@@ -772,6 +772,9 @@ Then once the release was created the publish.yml will publish the package with 
 - **This means when ever you create a new change you have to run:**
   
 ```
+# Pull the latest created release
+git pull
+
 git add .
 # https://www.conventionalcommits.org/en/v1.0.0/
 git commit -m "feat: Added payment feature"
