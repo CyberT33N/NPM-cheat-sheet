@@ -778,6 +778,10 @@ git pull
 git add .
 # https://www.conventionalcommits.org/en/v1.0.0/
 git commit -m "feat: Added payment feature"
+
+# Example for breaking change
+# git commit -m "feat: renamed error interfaces" -m "BREAKING CHANGE: renamed error interfaces"
+
 git push
 
 # Now there should be conflicts because the github workflows will automatically create a new version in our package.json
@@ -790,6 +794,8 @@ git pull
 
 git push -f
 ```
+
+
 
 
 
