@@ -754,6 +754,7 @@ jobs:
           release_name: ${{ steps.changelog.outputs.tag }}
           body: ${{ steps.changelog.outputs.clean_changelog }}
 ```
+- **Notice that it will create release on the main branch**
 
 - .github/workflows/publish.yml
 ```yml
