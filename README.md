@@ -33,6 +33,8 @@ __________________________________________
 
 # Install 
 
+<details><summary>Click to expand..</summary>
+ 
 ## Install package
 ```bash
 npm i request
@@ -56,7 +58,7 @@ npm i --no-audit sinon
 ```
 
 
-
+</details>
 
 
 
@@ -126,6 +128,8 @@ npm i --no-audit sinon
 
 # package.json
 
+<details><summary>Click to expand..</summary>
+ 
 <br><br>
 
 ## General Informations
@@ -315,7 +319,7 @@ npm run test-watch
   }
 ```
 
-
+</details>
 
 
 
@@ -554,6 +558,7 @@ __________________________________________
 
 # scripts (https://docs.npmjs.com/cli/v7/using-npm/scripts)
 
+<details><summary>Click to expand..</summary>
 
 
 <br><br>
@@ -601,6 +606,16 @@ npm run test
 
 npm i
 ```
+
+
+</details>
+
+
+
+
+
+
+
 
 
 
@@ -682,6 +697,8 @@ __________________________________________
 
 # Publish
 
+<details><summary>Click to expand..</summary>
+ 
 ## How to automate releases and publish packages to NPM using GitHub Actions
 - https://nanthakumaran.medium.com/how-to-automate-releases-and-publish-packages-to-npm-using-github-actions-910d5128c0fa
 
@@ -796,6 +813,17 @@ git push -f
 ```
 
 
+In order to publish the package to npm run inside your project with valid package.json:
+```shell
+npm init
+npm publish
+```
+- **Make sure that your package.json name is unique and does not exist in the npm registry (Search https://www.npmjs.com/search?q=xxxxx)**
+
+
+
+
+
 
 
 
@@ -888,7 +916,7 @@ npm unpublish --force your package
 
 
 
-
+<details>
 
 
 
