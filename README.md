@@ -695,38 +695,45 @@ __________________________________________
 __________________________________________
 <br><br>
 
-# Publish
+# 📦 Publish
 
 <details><summary>Click to expand..</summary>
- 
-## How to automate releases and publish packages to NPM using GitHub Actions
-- https://nanthakumaran.medium.com/how-to-automate-releases-and-publish-packages-to-npm-using-github-actions-910d5128c0fa
 
-1. We need 2 tokens to accomplish this task of automating releases and publishing packages.
-- PA_TOKEN - Personal Access Token from GitHub
-- NPM_TOKEN - NPM Token for automation
+## 🤖 Automating Releases and Publishing Packages to NPM Using GitHub Actions
+- Read more: [Automate Releases and Publish Packages to NPM](https://nanthakumaran.medium.com/how-to-automate-releases-and-publish-packages-to-npm-using-github-actions-910d5128c0fa)
 
-2. PA_TOKEN 
-Head over to https://github.com/settings/tokens/new to generate a new Personal Access Token
-- Select scopes:
-  - workflow 
-  - write:packages
+### 1. Generate Required Tokens
+To automate releases in your github repo and publish packages to npm registry, you will need two tokens:
+- **PA_TOKEN**: Personal Access Token from GitHub
+- **NPM_TOKEN**: NPM Token for automation
 
+### 2. Create Your PA_TOKEN
+Visit [GitHub Token Settings](https://github.com/settings/tokens/new) to generate a new Personal Access Token. 
+- **Select the following scopes**:
+  - `workflow` 
+  - `write:packages`
 
-3. NPM_TOKEN
-- Go to Settings > Access Tokens > Generate new token > Classic token
-  - Make sure you have chosen Automation
+### 3. Create Your NPM_TOKEN
+1. Navigate to **Settings > Access Tokens > Generate new token > Classic token**.
+2. Ensure you select **Automation**.
 
-4. Add npm token to github
-Open Settings of the repository. Under Security > Secrets > Action, click New Repository Secret and add your tokens
-  - Name field ist for e,g, PA_TOKEN and then value the token
-    - Add another one for NPM_TOKEN
+### 4. Add NPM Token to GitHub Secrets
+1. Open the repository's **Settings**.
+2. Under **Security > Secrets > Actions**, click **New Repository Secret** to add your tokens.
+   - In the **Name** field, enter `PA_TOKEN` and in the **Value** field, paste your token.
+   - Repeat for `NPM_TOKEN`.
+  
+### 5. Workflow permissions
+- Go in your project to Settings > Actions (https://github.com/CyberT33N/ModelManager/settings/actions)
+  - Scroll down to `Workflow permissions` and check:
+    - `Read and write permissions`
+    - `Allow GitHub Actions to create and approve pull requests `
 
+### 6. Set Up Workflow Files in Your Project
+Create the following files in your project structure:
 
-
-5. Create in your project:
-- .github/workflows/release.yml
-```yml
+#### .github/workflows/release.yml
+```yaml
 name: Releases
 on:
   push:
@@ -744,7 +751,7 @@ jobs:
         with:
           github-token: ${{ secrets.PA_TOKEN }}
           version-file: './package.json,./package-lock.json'
-      - name: create release
+      - name: Create Release
         uses: actions/create-release@v1
         if: ${{ steps.changelog.outputs.skipped == 'false' }}
         env:
@@ -754,10 +761,10 @@ jobs:
           release_name: ${{ steps.changelog.outputs.tag }}
           body: ${{ steps.changelog.outputs.clean_changelog }}
 ```
-- **Notice that it will create release on the main branch**
+- **Note**: This workflow will create a release on the `main` branch.
 
-- .github/workflows/publish.yml
-```yml
+#### .github/workflows/publish.yml
+```yaml
 name: Publish to NPM
 on:
   release:
@@ -773,53 +780,61 @@ jobs:
         with:
           node-version: '16'
           registry-url: 'https://registry.npmjs.org'
-      - name: Install dependencies and build 🔧
+      - name: Install Dependencies and Build 🔧
         run: npm ci
-      - name: Publish package on NPM 📦
+      - name: Publish Package to NPM 📦
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 ```
 
-The first entry point will be release.yml, where while committing the code it will generate a new release based on the conventional commits (will see that in minutes).
+### Summary of the Workflow
+1. The first entry point is `release.yml`, which generates a new release based on conventional commits when you commit code.
+2. After each valid commit, `release.yml` updates `CHANGELOG.md`, `package.json`, and `package-lock.json`.
+3. Once the release is created, `publish.yml` publishes the package to the NPM Registry.
 
-After each proper commit, the release.yml will change the CHANGELOG.md, package.json & package-lock.json
+### 📥 Workflow for Committing Changes
+Whenever you make changes, follow these steps:
 
-Then once the release was created the publish.yml will publish the package with the generated release to NPM Registry
-
-- **This means when ever you create a new change you have to run:**
-  
-```
+```bash
 # Pull the latest created release
 git pull
 
 git add .
-# https://www.conventionalcommits.org/en/v1.0.0/
+# Refer to the Conventional Commits documentation: https://www.conventionalcommits.org/en/v1.0.0/
 git commit -m "feat: Added payment feature"
 
-# Example for breaking change
+# Example for breaking changes
 # git commit -m "feat: renamed error interfaces" -m "BREAKING CHANGE: renamed error interfaces"
 
 git push
 
-# Now there should be conflicts because the github workflows will automatically create a new version in our package.json
-# Activate git pull config with rebase
-git pull
+# If conflicts arise due to automatic versioning in package.json, execute:
+git pull --rebase
 
-# If there are conflicts then solve them
+# Resolve any conflicts
 # git add .
 # git rebase --continue
 
 git push -f
 ```
 
-
-In order to publish the package to npm run inside your project with valid package.json:
-```shell
+### 📦 Publishing Your Package
+To publish the package to NPM, ensure your `package.json` is valid, then run:
+```bash
 npm init
 npm publish
 ```
-- **Make sure that your package.json name is unique and does not exist in the npm registry (Search https://www.npmjs.com/search?q=xxxxx)**
+- **Important**: Ensure that your `package.json` name is unique and does not already exist in the NPM registry (check [npmjs.com](https://www.npmjs.com/search?q=xxxxx)).
+
+
+
+
+
+
+
+
+
 
 
 
