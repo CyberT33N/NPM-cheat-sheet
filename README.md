@@ -171,37 +171,6 @@ npm ci
 
 ```
 
-
-<br><br>
-
-## Set main file
-- Set a custom file which should be executed in the beginning when you run your app. If you do not define any file then first index.js will be choosed. If index.js does not exist then server.js will be choosed.
-```bash
-{ "main": "src/index.js" }
-```
-
-<br><br>
-
-#### execute async function inside of main file
-```bash
-const main = async () => {
-    //..
-}
-
-main().then(() => {
-    console.log('main() has been called')
-})
-```
-
-
-<br><br>
-
-## Create custom license
-```javascript
-// Then include a file named <filename> at the top level of the package.
-{ "license" : "SEE LICENSE IN <filename>" }
-```
-
 <br><br>
 
 ## set/install latest version of dependencies
@@ -222,21 +191,55 @@ main().then(() => {
 }
 ```
 
+
+
+
+
+
+
+
+
+<br><br><br><br>
+
+# Poperties
+
 <br><br>
 
-## Use nodemon with test
-```javascript
-"scripts": {
-  "test": "mocha test.js",
-  "test-watch": "nodemon --exec \"npm test\""
-}
-```
+## main
+- Set a custom file which should be executed in the beginning when you run your app. If you do not define any file then first index.js will be choosed. If index.js does not exist then server.js will be choosed.
 ```bash
-npm run test-watch
+{ "main": "src/index.js" }
+```
+<br><br>
+
+### execute async function inside of main file
+```bash
+const main = async () => {
+    //..
+}
+
+main().then(() => {
+    console.log('main() has been called')
+})
 ```
 
 
+<br><br>
 
+## license
+```javascript
+// Then include a file named <filename> at the top level of the package.
+{ "license" : "SEE LICENSE IN <filename>" }
+```
+
+<br><br>
+
+## module
+```javscript
+"main": "src/index.cjs",
+"module": "src/index.mjs",
+```
+- You can set entry main file for cjs and module file for esm
 
 
 
@@ -251,6 +254,7 @@ npm run test-watch
 ```javascript
 "request": "~1.0.2"
 ```
+
 <br><br>
 
 #### Install latest minor or patch version
