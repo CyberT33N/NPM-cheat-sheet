@@ -431,6 +431,9 @@ __________________________________________
 
 ```bash
 npm upgrade request
+
+# or
+npm install mongoose-model-manager@latest
 ```
 
 
