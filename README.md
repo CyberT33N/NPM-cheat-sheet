@@ -949,7 +949,7 @@ npm unpublish --force your package
 
 
 
-<details>
+</details>
 
 
 
@@ -963,6 +963,39 @@ npm unpublish --force your package
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br><br>
+__________________________________________
+__________________________________________
+<br><br>
+
+# Utils
+
+<details><summary>Click to expand..</summary>
+
+# Enhance
+
+## husky
+- https://typicode.github.io/husky/
+- Husky enhances your commits and more 🐶 woof! Automatically lint your commit messages, code, and run tests upon committing or pushing.
+
+</details>
 
 
 
