@@ -1088,6 +1088,18 @@ __________________________________________
 
 <details><summary>Click to expand..</summary>
 
+
+# Security
+
+## Scan
+
+### npq
+- https://github.com/lirantal/npq?utm_source=tldrinfosec
+
+
+<br><br>
+
+
 # Enhance
 
 ## husky
