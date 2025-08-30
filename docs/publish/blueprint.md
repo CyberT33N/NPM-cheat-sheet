@@ -832,6 +832,58 @@ jobs:
       - uses: github/codeql-action/analyze@v3
 ```
 
+
+Was ist CodeQL?
+
+<details><summary>Click to expand..</summary>
+
+**CodeQL** ist ein **sicherheitsfokussiertes Analyse-Tool von GitHub**, das deinen Code auf **Schwachstellen, Bugs und Sicherheitsrisiken** untersucht. Es ist ein bisschen wie eine **SQL-Datenbank für Code**: man kann Abfragen schreiben, um bestimmte Muster im Code zu finden.
+
+---
+
+### 1️⃣ Grundprinzip
+
+* Dein Code wird in **eine Datenbank transformiert**.
+* Diese Datenbank kann dann mit **CodeQL-Abfragen** durchsucht werden.
+* Beispiel: Prüfe, ob irgendwo in Node.js ein unsicheres `eval()` auf Benutzereingaben angewendet wird.
+
+---
+
+### 2️⃣ Einsatz in GitHub Actions
+
+* Workflow läuft z. B. auf `pull_request` oder `push`.
+* Schritte in deinem Beispiel:
+
+```yaml
+- uses: github/codeql-action/init@v3
+  with: { languages: javascript-typescript }
+
+- uses: github/codeql-action/analyze@v3
+```
+
+* **Init:** erstellt CodeQL-Datenbank für die Sprache(n).
+* **Analyze:** führt die Abfragen aus und erstellt einen Report (SARIF-Datei).
+
+---
+
+### 3️⃣ Vorteile
+
+* Findet **Sicherheitslücken früh im CI**, bevor Code deployed wird.
+* Unterstützt viele Sprachen (JS/TS, Python, Java, C#, C/C++...).
+* Automatisiert Sicherheitschecks und lässt sich in **Pull-Request-Reviews** integrieren.
+
+---
+
+💡 **Kurz gesagt:**
+
+> CodeQL = GitHubs „SQL für Code“, um systematisch Sicherheitslücken, Bugs und riskanten Code zu erkennen.
+
+
+
+</details>
+
+---
+
 OpenSSF Scorecard:
 ```yaml
 # .github/workflows/scorecard.yml
@@ -853,6 +905,69 @@ jobs:
       - uses: github/codeql-action/upload-sarif@v3
         with: { sarif_file: results.sarif }
 ```
+
+
+Was ist OpenSSF Scorecard?
+
+<details><summary>Click to expand..</summary>
+
+Die **OpenSSF Scorecard** ist ein **automatisches Sicherheits-Audit-Tool für Open-Source-Projekte**, entwickelt von der **Open Source Security Foundation (OpenSSF)**.
+
+---
+
+### 1️⃣ Zweck
+
+* Bewertet **Best Practices** für Sicherheit in einem Repository.
+* Gibt **Punkte** oder ein Rating für jede Kategorie.
+* Ziel: Risiken früh erkennen und OSS-Projekte sicherer machen.
+
+---
+
+### 2️⃣ Bewertete Kategorien (Beispiele)
+
+* **Code-Review**: Werden Pull Requests geprüft?
+* **Vulnerability Management**: Gibt es Dependabot/Remediate-Prozesse?
+* **Branch Protection**: Ist der `main`-Branch geschützt?
+* **Signed Commits**: Werden Commits signiert?
+* **CI-Security**: Sind CI-Workflows abgesichert?
+* **Licensing**: Klare Lizenz vorhanden?
+
+---
+
+### 3️⃣ Einsatz in GitHub Actions
+
+Beispiel aus deinem Blueprint:
+
+```yaml
+- uses: ossf/scorecard-action@v2.3.3
+  with: { results_file: results.sarif }
+- uses: github/codeql-action/upload-sarif@v3
+  with: { sarif_file: results.sarif }
+```
+
+* Läuft automatisiert auf PRs oder nach Zeitplan (`cron`).
+* Generiert **SARIF-Report**, der in GitHub Security Tab angezeigt wird.
+
+---
+
+### 4️⃣ Vorteile
+
+* Automatisiertes Security-Checkup für Repositories.
+* Zeigt **potenzielle Sicherheitslücken oder fehlende Praktiken** auf.
+* Unterstützt OSS- und Enterprise-Projekte gleichermaßen.
+* Ergänzt Tools wie CodeQL, Dependabot oder Renovate.
+
+---
+
+💡 **Kurz gesagt:**
+
+> OpenSSF Scorecard = automatisches „Security Health Check“ für ein GitHub-Repo, das zeigt, wie gut Sicherheitsbest Practices eingehalten werden.
+
+
+</details>
+
+
+<br><br>
 
 Org policy
 - Enforce 2FA on org publish, branch protections, required status checks (CI, CodeQL).
@@ -927,6 +1042,64 @@ CLI entry:
 #!/usr/bin/env node
 import('node:process'); // keep ESM; no top-level await if Node 20 target is OK
 ```
+
+<br>
+
+Was heißt das?
+
+<details><summary>Click to expand..</summary>
+
+
+
+### 1️⃣ `"bin"` in `package.json`
+
+```json
+"bin": { "pkg-cli": "./dist/cli.js" }
+```
+
+* **`bin`** definiert, welche Datei als **ausführbares Kommando** verfügbar sein soll, wenn jemand dein Paket global installiert (`npm install -g pkg`).
+* `pkg-cli` = Name des CLI-Kommandos.
+* `./dist/cli.js` = die JS-Datei, die ausgeführt wird, wenn man `pkg-cli` im Terminal tippt.
+
+➡️ Ergebnis: Nach Installation kannst du einfach `pkg-cli` in der Shell ausführen.
+
+---
+
+### 2️⃣ Shebang
+
+```ts
+#!/usr/bin/env node
+```
+
+* Zeile ganz oben in `cli.js`.
+* Sagt dem Betriebssystem:
+
+  > „Führe diese Datei mit Node.js aus.“
+* Standard für **Node‑CLI-Programme** auf Linux/macOS.
+
+---
+
+### 3️⃣ ESM Loader
+
+```ts
+import('node:process'); // keep ESM; no top-level await if Node 20 target is OK
+```
+
+* Dynamischer Import (`import()` statt `require`) → **ESM-kompatibel**.
+* Node 20 erlaubt dynamische Imports in CLI, ohne Top-Level-Await zu benutzen.
+* Stellt sicher, dass dein CLI **ESM-Modul** ist, auch wenn es global installiert wird.
+
+---
+
+### 🔹 Zusammenfassung
+
+1. `"bin"` → definiert CLI-Kommando.
+2. `#!/usr/bin/env node` → macht die JS-Datei ausführbar auf Unix-Systemen.
+3. Dynamischer Import → kompatibel mit **ESM + Node 20+**, ohne dass CLI beim Start blockiert wird.
+
+</details>
+
+
 
 ---
 
