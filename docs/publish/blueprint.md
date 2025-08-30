@@ -2,14 +2,26 @@
 
 ### TL;DR (defaults most large OSS libs converge on)
 - ESM‑first, Node LTS targets (Node 20 primary, optionally 22), `type: "module"`.
-- Strict SemVer, Conventional Commits, automated releases (Changesets), protected main branch.
-- `exports` map with `import` and `types` (add `require` only if truly needed).
-- Minimal runtime deps; framework/runtime ties as `peerDependencies` (+ `peerDependenciesMeta`).
+
+
+--  -- 
+
+- Strict SemVer (Semantic Versioning), Conventional Commits, automated releases (Changesets), protected main branch.
+time deps; framework/runtime ties as `peerDependencies` (+ `peerDependenciesMeta`).
+
+
 - `sideEffects: false`, tree‑shakable API, concise `files` whitelist, sourcemaps on, d.ts bundle shipped.
+
+
 - pnpm, strict CI with matrix (OS x Node), caching, lint/type/test/build/pack smoke, CodeQL + Scorecard.
-- OIDC to npm, `npm publish --provenance`, 2FA enforced on org; Renovate/Dependabot on.
+
+- OIDC to npm (OpenID Connect verwendet, um sich bei npm zu authentifizieren), `npm publish --provenance`, 2FA enforced on org; Renovate/Dependabot on.
+
 - Husky + lint‑staged for fast local gates; heavy gates (typecheck/test) pre‑push or in CI.
+
 - Solid docs: README, CHANGELOG (auto via Changesets), CONTRIBUTING, CODEOWNERS, SECURITY, LICENSE.
+
+
 
 ---
 
@@ -64,8 +76,12 @@ Monorepo note: prefer pnpm workspaces + Changesets; per‑package `dist/`, share
     "lint": "eslint .",
     "format": "prettier -w .",
     "format:check": "prettier -c .",
-    "test": "vitest run",
-    "test:watch": "vitest",
+     "test": "vitest",
+     "test:integration": "vitest run --project integration",
+     "test:regression": "vitest run --project regression",
+     "test:unit": "vitest run --project unit",
+     "test:update-snapshots": "vitest --update",
+     "test:watch": "vitest --watch"
     "coverage": "vitest run --coverage",
     "pack:dry": "npm pack --dry-run",
     "smoke:pack": "pnpm build && pnpm pack:dry && pnpm dlx publint && pnpm dlx arethetypeswrong --pack",
@@ -104,6 +120,102 @@ Monorepo note: prefer pnpm workspaces + Changesets; per‑package `dist/`, share
 }
 ```
 
+
+*sideEffects* heißt:
+
+<details><summary>Click to expand..</summary>
+
+Alles klar, lass uns das **aufschlüsseln**, denn das sind zentrale Best Practices für moderne TypeScript‑/Node‑Pakete:
+
+---
+
+### 1️⃣ `sideEffects: false`
+
+* In **package.json** eingetragen.
+* Signalisiert dem **Bundler** (z. B. Webpack, Rollup, Vite):
+
+  > „Wenn ich ein Modul importiere, kann es sicher entfernt werden, wenn es nicht genutzt wird.“
+* **Effekt:**
+
+  * **Tree-shaking** funktioniert besser.
+  * Unbenutzter Code wird automatisch aus dem finalen Bundle gestrichen.
+* **Voraussetzung:** Dein Code darf **keine globalen Nebeneffekte** haben, wie z. B. `console.log()` beim Laden oder Modifikationen von `window`/`global`.
+
+---
+
+### 2️⃣ Tree-shakable API
+
+* Tree-shaking = ungenutzte Exporte werden beim Bundling **automatisch entfernt**.
+* Beispiel:
+
+```ts
+// utils.ts
+export function used() { return 42; }
+export function unused() { return 99; }
+
+// consumer.ts
+import { used } from './utils';
+console.log(used());
+```
+
+* Mit Tree-shaking wird `unused()` **nicht ins Bundle gepackt**, spart Bytes und Ladezeit.
+* Kombiniert man mit `sideEffects: false`, ist das sehr effektiv.
+
+---
+
+### 3️⃣ Concise `files` whitelist
+
+* **`files`** in package.json: Liste der Dateien, die ins npm-Paket kommen.
+* Beispiel aus deinem Blueprint:
+
+```json
+"files": [
+  "dist/",
+  "!dist/**/*.map",
+  "!**/*.test.*",
+  "!**/*.spec.*",
+  "!**/__tests__/"
+]
+```
+
+* **Zweck:**
+
+  * Paket klein halten
+  * Nur relevante Artefakte (z. B. kompilierte `.js` und `.d.ts`) veröffentlichen
+  * Testdateien, Source Maps (optional), Rohquellen draußen lassen
+
+---
+
+### 4️⃣ Sourcemaps on
+
+* `sourceMap: true` in tsconfig oder Build-Tool (`tsup`)
+* **Sinn:** Debugging erleichtern.
+* Beispiel: Du bekommst im Browser/Node die **Original-TypeScript-Zeile** beim Stacktrace, nicht die kompilierte `.js` Zeile.
+
+---
+
+### 5️⃣ d.ts bundle shipped
+
+* `.d.ts` = TypeScript **Deklarationsdatei**.
+* Liefert Typdefinitionen für Konsumenten deines Pakets.
+* Beispiel: Wenn jemand `import { foo } from 'mypkg'` macht, bekommt er **vollständige Typinformationen**, IntelliSense, Auto-Completion.
+* Meistens gebündelt in `dist/index.d.ts`.
+
+---
+
+💡 **Kurz gesagt:**
+
+> Mit diesen Einstellungen lieferst du ein **sauberes, minimal, leicht tree-shakable Paket**, das in TypeScript sauber typisiert ist, schnell lädt und gut debugbar bleibt.
+
+
+</details>
+
+
+
+<br><br>
+
+
+
 Dual‑module variant (only if needed for `require` consumers):
 ```json
 {
@@ -129,30 +241,239 @@ Notes
 ---
 
 ## TypeScript config (Node ESM library)
-```json
+
+### TypeScript-Config
+
+#### `tsconfig.base.json`
+```jsonc
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2022"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": false,
-    "sourceMap": true,
-    "inlineSources": true,
-    "outDir": "dist",
-    "rootDir": "src",
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
-    "skipLibCheck": true
-  },
-  "include": ["src"]
+    "compilerOptions": {
+
+        /*
+         *✅ Erlaubt das Importieren von `.ts`-Dateien mit Erweiterung.
+         *- Notwendig für TypeScript ES-Module (`import "./file.ts"`).
+         */
+        "allowImportingTsExtensions": true,
+
+        /*
+         *✅ Erlaubt das Importieren von Modulen, die keinen `default`-Export haben.
+         *- Nützlich für CommonJS-Module (`import fs from "fs"`).
+         */
+        "allowSyntheticDefaultImports": true,
+
+        /*
+         *✅ Basisverzeichnis für `paths`-Aliase.
+         *- Erlaubt z. B. `import foo from "@/utils/foo"` statt `import foo from "../../utils/foo"`.
+         */
+        "baseUrl": ".",
+
+        /*
+         *✅ Erlaubt Interoperabilität zwischen CommonJS und ES-Modulen.
+         *- Falls du CJS (`require()`) und ESM (`import`) mischst, **essentiell**.
+         */
+        "esModuleInterop": true,
+
+        /*
+         *⚠️ **Erzeugt Metadaten für Dekoratoren (z. B. für NestJS, TypeORM).**
+         *- **Nur aktiv lassen, wenn du Reflection brauchst.**
+         */
+        // "emitDecoratorMetadata": true,
+        /*
+         *✅ Erlaubt experimentelle Dekoratoren (z. B. `@Injectable()` in NestJS).
+         *- Dekoratoren sind noch nicht offiziell in JavaScript, daher "experimentell".
+         */
+        "experimentalDecorators": true,
+
+        /*
+         *✅ Erzwingt konsistente Groß-/Kleinschreibung in Imports.
+         *- Verhindert Bugs bei case-sensitive Dateisystemen (z. B. Linux).
+         */
+        "forceConsistentCasingInFileNames": true,
+
+        /*
+         *✅ Erzwingt, dass jede `.ts`-Datei als ein isoliertes Modul behandelt wird.
+         *- Erforderlich für den ESBuild- und Babel-Transpiler.
+         */
+        "isolatedModules": true,
+
+        /*
+         *✅ Eingebundene Standardbibliotheken.
+         * AKTUELL VERWENDET: ES2023, DOM, DOM.Iterable
+         */
+        "lib": [
+            "ES2023",
+            "DOM",
+            "DOM.Iterable"
+        ],
+
+        /*
+         * ═══════════════════════════════════════════════════════════════
+         * 📦 MODULE SYSTEM CONFIGURATION
+         * ═══════════════════════════════════════════════════════════════
+         * ENTERPRISE WAHL: "ESNext"
+         */
+        "module": "ESNext",
+
+        /*
+         * ═══════════════════════════════════════════════════════════════
+         * 🔍 MODULE RESOLUTION STRATEGY
+         * ═══════════════════════════════════════════════════════════════
+         * ENTERPRISE WAHL: "bundler"
+         */
+        "moduleResolution": "bundler",
+
+        /*
+         *✅ Deaktiviert die Ausgabe von `.js`-Dateien.
+         *- Wichtig für TypeScript-only-Projekte oder wenn eine separate Build-Pipeline existiert.
+         */
+        "noEmit": true,
+
+        /*
+         *✅ Fehler werfen, wenn `switch`-Statements Fälle ohne `break` haben.
+         *- Verhindert unerwartetes Verhalten.
+         */
+        "noFallthroughCasesInSwitch": true,
+
+        /*
+         *✅ Erzwingt explizite Typdeklarationen (kein `any` erlaubt).
+         *- Reduziert unerwartetes Verhalten durch dynamische Typen.
+         */
+        "noImplicitAny": true,
+
+        /*
+         *✅ Fehler werfen, wenn eine Funktion nicht explizit `return` hat.
+         *- Verhindert Bugs durch unerwartete `undefined`-Rückgaben.
+         */
+        "noImplicitReturns": true,
+
+        /*
+         *✅ Fehler werfen, wenn unbenutzte Variablen vorhanden sind.
+         *- Hilft, toten Code zu vermeiden.
+         */
+        "noUnusedLocals": true,
+
+        /*
+         *✅ Fehler werfen, wenn unbenutzte Funktionsparameter vorhanden sind.
+         *- Hilft, unnötigen Code zu reduzieren.
+         */
+        "noUnusedParameters": true,
+
+        /*
+         *✅ Definiert TypeScript-Module mit Aliassen.
+         */
+        "paths": {
+            "@/*": ["src/*"],
+            "@test/*": ["test/*"]
+        },
+
+        /*
+         *✅ Erlaubt das Importieren von `.json`-Dateien.
+         */
+        "resolveJsonModule": true,
+
+        /*
+         *✅ Überspringt Typprüfung für Bibliotheken.
+         *- Erhöht die Kompiliergeschwindigkeit.
+         *- Sollte **deaktiviert** werden, wenn du unsichere Abhängigkeiten prüfst.
+         */
+        "skipLibCheck": false,
+
+        /*
+         *✅ Deaktiviert Source Maps.
+         *- Falls Debugging nötig ist, setze auf `true`.
+         */
+        "sourceMap": true,
+
+        /*
+         *✅ Aktiviert den "Strict Mode" für TypeScript.
+         */
+        "strict": true,
+
+        /*
+         *✅ Erzwingt explizite Typdeklarationen (kein `any` erlaubt).
+         */
+        "strictNullChecks": true,
+
+        /*
+         *✅ ECMAScript-Zielversion auf ES2023 gesetzt.
+         */
+        "target": "ES2023",
+
+        /*
+         *✅ Klasseneigenschaften mit `Object.defineProperty` setzen.
+         */
+        "useDefineForClassFields": true
+    },
+    "exclude": [
+        "node_modules",
+        "out"
+    ]
 }
 ```
 
-Optional: `typesVersions` only if you must support TS < 4.7 (legacy).
+#### `tsconfig.node.json`
+```jsonc
+
+{
+    /*
+     *✅ Verweist auf das TypeScript-Config-Schema.
+     */
+    "$schema": "https://json.schemastore.org/tsconfig",
+
+    "compilerOptions": {
+        /*
+         *✅ Erlaubt die Verarbeitung von JavaScript-Dateien.
+         */
+        "allowJs": true,
+
+        /*
+         *✅ Definiert die Basis-URL für die Pfad-Aliase.
+         */
+        "baseUrl": ".",
+
+        /*
+         *✅ Aktiviert "Composite Mode".
+         *- Notwendig für "Project References".
+         */
+        "composite": true,
+
+        "paths": {
+            "@/*": ["src/*"],
+            "@test/*": ["test/*"]
+        },
+
+        /*
+         *✅ Definiert globale Typen für das Projekt.
+         */
+        "types": ["node"]
+    },
+
+    /*
+     * Extend the base TypeScript configuration
+     */
+    "extends": "./tsconfig.base.json",
+
+    /*
+     *✅ Welche Dateien TypeScript verarbeiten soll.
+     */
+    "include": [
+        "src/**/*",
+        "global.d.ts"
+    ]
+}
+```
+
+#### `tsconfig.json`
+```jsonc
+{
+    "files": [],
+    "references": [
+        {
+            "path": "./tsconfig.node.json"
+        }
+    ]
+}
+```
 
 ---
 
@@ -314,6 +635,65 @@ Best practices
 - Cache pnpm, freeze lockfile.
 - Separate publish from CI; CI must be green before release.
 
+
+Was heißt Matrix?
+
+<details><summary>Click to expand..</summary>
+
+In **GitHub Actions** ist eine **Matrix** ein Bauplan für parallele Test-/Build-Varianten. Statt dass du denselben Job manuell mehrmals definierst (z. B. für Node 20 und Node 22, oder für Ubuntu, macOS und Windows), schreibst du nur **eine Job-Definition** und legst eine Matrix fest. GitHub generiert daraus automatisch mehrere unabhängige Job-Runs.
+
+Beispiel aus deinem CI-Snippet:
+
+```yaml
+strategy:
+  fail-fast: false
+  matrix:
+    os: [ubuntu-latest]
+    node: [20, 22]
+```
+
+➡️ Das heißt:
+
+* `os` = Betriebssystem (hier nur Ubuntu, man könnte auch `windows-latest`, `macos-latest` ergänzen).
+* `node` = Node.js-Versionen.
+
+Die Matrix multipliziert diese Dimensionen:
+
+* Ubuntu + Node 20
+* Ubuntu + Node 22
+
+GitHub startet für jede Kombination einen eigenen Runner. Jeder Job installiert genau die Version, die du in `${{ matrix.node }}` angibst. Das erlaubt dir, früh zu sehen, ob dein Paket auf allen Plattformen und Node-Versionen sauber baut, lintet, testet, etc.
+
+---
+
+### Mehr zu GitHub Actions (im GitHub-Kontext):
+
+* **Workflows**: YAML-Dateien unter `.github/workflows/`. Jede Datei beschreibt, wann (trigger) und wie (jobs) dein CI/CD läuft.
+* **Events**: `on: push`, `on: pull_request`, `on: schedule`, usw. – sie lösen einen Workflow aus.
+* **Jobs**: Logische Blöcke, laufen parallel (außer man verknüpft sie mit `needs`).
+* **Steps**: Befehle innerhalb eines Jobs. Steps können entweder eine Action nutzen (`uses:`) oder ein Shell-Kommando (`run:`).
+* **Actions**: Wiederverwendbare Module, wie `actions/checkout` (holt Repo-Code) oder `actions/setup-node` (installiert Node).
+* **Permissions**: Feinsteuerung, welche Rechte der Workflow gegenüber dem Repo hat. Best Practice: minimal halten.
+* **Caching**: Spart Zeit, indem Abhängigkeiten (`pnpm`, `npm`, `yarn`) nicht jedes Mal frisch gezogen werden.
+
+Im Enterprise-Blueprint oben siehst du:
+
+* **Matrix (OS × Node)** = Multi-Platform/Version Tests.
+* **Concurrency** = Stellt sicher, dass nicht mehrere Builds derselben Branch parallel laufen.
+* **Minimal Permissions** = Sicherheit (z. B. nur `contents: read`).
+* **OIDC-Integration** = Signierte Publishes zu npm ohne statisches Token.
+
+Kurz: **Matrix = Multiplizieren von Testdimensionen**.
+GitHub Actions = deine vollautomatische CI/CD-Pipeline direkt im GitHub-Repo, steuerbar über YAML.
+
+👉 Soll ich dir ein konkretes Beispiel bauen, wie die gleiche Matrix für **Node × OS** aussieht (also Ubuntu, macOS, Windows × Node 18, 20, 22), damit du den Effekt live siehst?
+
+</details>
+
+---
+
+
+
 ---
 
 ## GitHub Actions: Release (Changesets + OIDC + provenance)
@@ -360,6 +740,72 @@ jobs:
 Notes
 - Use Changesets PR flow; merge triggers publish.
 - Prefer OIDC (`id-token: write`) with `--provenance`; only use `NPM_TOKEN` if your org hasn’t enabled OIDC.
+
+
+
+
+
+Was ist OIDC
+
+<details><summary>Click to expand..</summary>
+
+**OIDC to npm** bedeutet, dass dein GitHub-Workflow **OIDC (OpenID Connect) verwendet, um sich bei npm zu authentifizieren**, anstatt ein statisches `NPM_TOKEN` im Repository zu speichern.
+
+Hier die Details:
+
+---
+
+### 1️⃣ OIDC = OpenID Connect
+
+* Standard für **identity federation**: GitHub kann gegenüber externen Services beweisen, dass ein Workflow vertrauenswürdig ist.
+* GitHub erstellt dafür **ein JWT (JSON Web Token)** für den Workflow-Run.
+* Dieses Token kann **dynamisch** an npm weitergegeben werden.
+
+---
+
+### 2️⃣ Problem ohne OIDC
+
+* Früher musste man **ein npm-Token als Secret** im GitHub-Repo speichern: `NPM_TOKEN`.
+* Risiko: Token könnte geleakt werden, wenn jemand Zugriff auf das Repo hat.
+
+---
+
+### 3️⃣ Mit OIDC
+
+* Workflow kann `id-token: write` in den Berechtigungen setzen:
+
+```yaml
+permissions:
+  contents: write
+  id-token: write
+```
+
+* Dann kann die Action (`npm publish`) **mit JWT statt Token** authentifizieren.
+* npm prüft: „Dieses Token wurde von GitHub erzeugt, Workflow vertrauenswürdig → Veröffentlichung erlaubt.“
+
+---
+
+### 4️⃣ Vorteile
+
+* **Kein statisches Secret mehr nötig** → sicherer.
+* Tokens **laufen nach wenigen Minuten ab** → reduziert Risiko von Missbrauch.
+* Passt perfekt zu automatisierten CI/CD-Releases über **Changesets + GitHub Actions**.
+
+---
+
+💡 **Kurz gesagt:**
+
+> OIDC to npm = GitHub sagt npm: „Vertraue diesem Workflow, er darf veröffentlichen“ – ohne dass du ein dauerhaftes Token speichern musst.
+
+---
+
+Wenn du willst, kann ich auch zeigen, wie ein **Release-Job mit OIDC für npm** in GitHub Actions **komplett aussieht**, inkl. JWT-Token-Flow. Willst du das?
+
+
+</details>
+
+
+
 
 ---
 
