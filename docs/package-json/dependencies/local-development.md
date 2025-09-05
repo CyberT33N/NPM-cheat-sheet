@@ -1,15 +1,21 @@
-## ESLint-Plugin-Enterprise: Cheat‑Sheet (lokale Entwicklung mit Link)
+Here’s the full 1:1 translation into English:
 
-### TSUP Build (im Plugin)
-- **Ziel**: ESM‑Artefakte für Node 20+ mit DTS
-- **Kern-Settings**:
-  - **clean**: true
-  - **entry**: ['src/index.ts']
-  - **format**: ['esm']  ← erzeugt `dist/index.js`
-  - **dts**: { resolve: true, compilerOptions: { composite: false } }  ← erzeugt `dist/index.d.ts`
-  - **sourcemap**: true
-  - **treeshake**: true
-  - **tsconfig**: 'tsconfig.json'
+---
+
+## eslint-plugin-test: Cheat-Sheet (local development with link)
+
+### TSUP Build (in the plugin)
+
+* **Goal**: ESM artifacts for Node 20+ with DTS
+* **Core settings**:
+
+  * **clean**: true
+  * **entry**: \['src/index.ts']
+  * **format**: \['esm']  ← produces `dist/index.js`
+  * **dts**: { resolve: true, compilerOptions: { composite: false } }  ← produces `dist/index.d.ts`
+  * **sourcemap**: true
+  * **treeshake**: true
+  * **tsconfig**: 'tsconfig.json'
 
 ```ts
 import { defineConfig } from 'tsup'
@@ -25,9 +31,10 @@ export default defineConfig({
 })
 ```
 
-### package.json (im Plugin)
-- **ESM** + **Exports** + **Types** zeigen auf die gebauten Artefakte in `dist/`
-- `main` ist optional, kann auf dasselbe ESM‑Entry zeigen
+### package.json (in the plugin)
+
+* **ESM** + **Exports** + **Types** point to the built artifacts in `dist/`
+* `main` is optional, can point to the same ESM entry
 
 ```json
 {
@@ -50,53 +57,65 @@ export default defineConfig({
     "!**/*.spec.*",
     "!**/__tests__/"
   ],
-"scripts": {
-      "build": "tsup",
-      "dev": "tsup --watch --config tsup.config.ts",
-      "preinstall": "npx only-allow pnpm",
-      "prepare": "husky",
-      "pack:dry": "npm pack --dry-run"
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch --config tsup.config.ts",
+    "preinstall": "npx only-allow pnpm",
+    "prepare": "husky",
+    "pack:dry": "npm pack --dry-run"
   }
 }
 ```
 
-### package.json (im Consumer)
-- **Lokaler Link** auf das Plugin‑Repo
+### package.json (in the consumer)
+
+* **Local link** to the plugin repo
 
 ```json
 {
   "devDependencies": {
-    "eslint-plugin-enterprise": "link:C:/Projects/programming-languages/typescript/linting/eslint-plugin-enterprise"
+    "eslint-plugin-test": "link:C:/Projects/programming-languages/typescript/linting/eslint-plugin-test"
   }
 }
 ```
 
-### Verwendung im Consumer (`eslint.config.ts`)
-- **Import** und **Nutzung** des Flat Config‑Presets
+### Usage in consumer (`eslint.config.ts`)
+
+* **Import** and **use** the Flat Config preset
 
 ```ts
-import { enterprisePlugin } from 'eslint-plugin-enterprise'
+import { enterprisePlugin } from 'eslint-plugin-test'
 
 // …
 enterprisePlugin.configs.all,
 ```
 
-### Befehle (Dev‑Loop)
-- **Plugin bauen/watchen**:
-```bash
-pnpm -C "C:\Projects\programming-languages\typescript\linting\eslint-plugin-enterprise" dev
-# oder einmalig:
-pnpm -C "C:\Projects\programming-languages\typescript\linting\eslint-plugin-enterprise" build
-```
-- Wenn wir den **Dev-Modus** benutzen, dann aktualisieren sich die **Dateien** automatisch im **Consumer-Projekt** bei **Node-Module**.
+### Commands (dev loop)
 
-- **Consumer aktualisieren**:
-```bash
-pnpm -C "C:\git\privadent\privadent-synchronizer" install --force
-```
-- Danach ggf. **TS‑Server/IDE neu starten**.
+* **Build/watch the plugin**:
 
-### Wichtige Stolpersteine
-- **Exports ↔ Build**: `"exports"`/`"types"` müssen exakt zu den gebauten Dateien passen (`dist/index.js`, `dist/index.d.ts`).
-- **CJS vs ESM**: Wenn `format` nicht `esm` ist, entstehen `.cjs`/`.d.cts` → dann `"exports"`/`"types"` anpassen.
-- **Engines**: Achte auf kompatible Node‑Versionen (Plugin `"engines"` vs Consumer‑Node).
+```bash
+pnpm -C "C:\Projects\programming-languages\typescript\linting\eslint-plugin-test" dev
+# or once:
+pnpm -C "C:\Projects\programming-languages\typescript\linting\eslint-plugin-test" build
+```
+
+* When using **dev mode**, the **files** in the **consumer project** under **node\_modules** update automatically.
+
+* **Update consumer**:
+
+```bash
+pnpm -C "C:\git\test\test-synchronizer" install --force
+```
+
+* Afterwards, restart **TS server/IDE** if necessary.
+
+### Important pitfalls
+
+* **Exports ↔ Build**: `"exports"`/`"types"` must match the built files exactly (`dist/index.js`, `dist/index.d.ts`).
+* **CJS vs ESM**: If `format` is not `esm`, then `.cjs`/`.d.cts` are created → update `"exports"`/`"types"` accordingly.
+* **Engines**: Make sure Node versions are compatible (plugin `"engines"` vs consumer Node).
+
+---
+
+Want me to also make a **shortened version** (like a quick-reference card) in English, or keep it as this literal 1:1 translation?
