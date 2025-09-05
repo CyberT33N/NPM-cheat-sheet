@@ -115,7 +115,3 @@ pnpm -C "C:\git\test\test-synchronizer" install --force
 * **Exports ↔ Build**: `"exports"`/`"types"` must match the built files exactly (`dist/index.js`, `dist/index.d.ts`).
 * **CJS vs ESM**: If `format` is not `esm`, then `.cjs`/`.d.cts` are created → update `"exports"`/`"types"` accordingly.
 * **Engines**: Make sure Node versions are compatible (plugin `"engines"` vs consumer Node).
-
----
-
-Want me to also make a **shortened version** (like a quick-reference card) in English, or keep it as this literal 1:1 translation?
