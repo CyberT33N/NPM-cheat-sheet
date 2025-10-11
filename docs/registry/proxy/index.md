@@ -1,0 +1,1 @@
+- https://verdaccio.org/docs/what-is-verdaccio
