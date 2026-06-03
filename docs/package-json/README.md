@@ -232,6 +232,27 @@
 ```json
 { "engines": { "node": ">=20.10 <23", "pnpm": ">=9 <10" } }
 ```
+
+
+### `engines.runtime`
+Das ist die **produktive Runtime-Surface** bei pnpm.
+
+Wichtig:
+- sie ist nicht dasselbe wie `engines.node`
+- `engines.node` ist klassischer Kompatibilitätsvertrag
+- `engines.runtime` ist pnpm-Runtime-Management-Surface
+
+## `devEngines`
+Unter npm/pnpm relevant:
+- `runtime`
+- `packageManager`
+- `cpu`
+- `os`
+- `libc`
+
+
+
+
 - packageManager 🔐
   - What: Corepack-aware pin of package manager + version.
   - Example:
@@ -248,12 +269,62 @@
   }
 }
 ```
+
+pnpm-unterstützte Runtime-Namen:
+- `node`
+- `deno`
+- `bun`
+
+### `devEngines.packageManager`
+Objekt:
+
+```json
+{
+  "name": "pnpm",
+  "version": "11.5.0",
+  "onFail": "error"
+}
+```
+
+
+
+
+### `onFail`-Werte bei pnpm
+Für Runtime-/PackageManager-Kontext:
+- `download`
+- `error`
+- `warn`
+- `ignore`
+
+## `engines.runtime` vs. `devEngines.runtime`
+
+### Sind sie äquivalent?
+**Nein, semantisch nein.**
+
+### Sollten sie manchmal gleich sein?
+**Ja, bei einer normalen Node-App oft schon.**
+
+Für eine **normale Node-App**, die lokal und produktiv denselben Prozess fährt, ist die stärkste Governance:
+
+- `engines.runtime = 20.19.6`
+- `devEngines.runtime = 20.19.6`
+
+also **gleiche exakte Version**, weil es dieselbe Laufzeitsurface ist.
+
+
 - executionEnv.nodeVersion (pnpm per-project) 🔐
   - What: Per-project runtime when workspace root pins useNodeVersion.
   - Example:
 ```json
 { "executionEnv": { "nodeVersion": "22.7.0" } }
 ```
+
+
+
+
+
+
+
 
 ### 9) Platform Constraints
 - os 🔐
